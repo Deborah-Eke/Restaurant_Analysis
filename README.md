@@ -1,5 +1,5 @@
 ﻿# 🍽️ Turning Data Into Delicious Decisions
-### Restaurant Performance Analysis — 6-Month Review (Jan–Jun 2026)
+### Restaurant Performance Analysis-6-Month Review (Jan–Jun 2026)
 [![SQL Server](https://img.shields.io/badge/SQL%20Server-T--SQL-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/en-gb/sql-server)
 [![Microsoft Excel](https://img.shields.io/badge/Microsoft-Excel-217346?style=for-the-badge&logo=microsoftexcel&logoColor=white)](https://www.microsoft.com/en-gb/microsoft-365/excel)
 [![Power BI](https://img.shields.io/badge/Power%20BI-Desktop-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)](https://powerbi.microsoft.com/)
