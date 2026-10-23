@@ -2,14 +2,10 @@
 ### Restaurant Performance Analysis — 6-Month Review (Jan–Jun 2026)
 <div align="center">
 
-  [![SQL Server](https://img.shields.io/badge/SQL%20Server-T--SQL-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white)](https://www.microsoft.com/en-gb/sql-server)
-[![Microsoft Excel](https://img.shields.io/badge/Microsoft-Excel-217346?style=for-the-badge&logo=microsoftexcel&logoColor=white)](https://www.microsoft.com/en-gb/microsoft-365/excel)
-[![Power BI](https://img.shields.io/badge/Power%20BI-Desktop-F2C811?style=for-the-badge&logo=powerbi&logoColor=black)](https://powerbi.microsoft.com/)
-
-![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=flat-square)
-![Dataset](https://img.shields.io/badge/Dataset-1%2C800%20Transactions-blue?style=flat-square)
-![Period](https://img.shields.io/badge/Period-Jan–Jun%202026-orange?style=flat-square)
-![Dashboards](https://img.shields.io/badge/Dashboards-4-purple?style=flat-square)
+![SQL](https://img.shields.io/badge/SQL-Used-red)
+![Power BI](https://img.shields.io/badge/Power%20BI-Used-yellow)
+![Excel](https://img.shields.io/badge/Excel-Used-green)
+![GitHub](https://img.shields.io/badge/GitHub-Used-black)
 
 </div>
 
