@@ -184,16 +184,16 @@ Used to build the final 5-page interactive report (4 analytical dashboards + 1 d
 All cleaning was performed in **SQL Server (T-SQL)** using my Week 1 assignment script.
 
 ### Step 1 — Database and table creation
-Created a dedicated database `TeamOreo_Restaurant` and defined the `Restaurant_Raw_Data` schema with correct data types for all 30 columns.
+Created a dedicated database `TeamOreo_Restaurant` and defined the `Restaurant_Raw_Data` schema with correct data types for all 24 columns.
 
 ### Step 2 — Data import verification
-Confirmed successful import: `SELECT COUNT(*) AS Total_Rows` returned 1,800 rows. Ran `SELECT TOP 10 *` to visually inspect column values before any modifications.
+Confirmed successful import: `SELECT COUNT(*) AS Total_Rows` returned 1,810 rows. Ran `SELECT TOP 10 *` to visually inspect column values before any modifications.
 
 ### Step 3 — Missing value audit
 Used `SUM(CASE WHEN column IS NULL THEN 1 ELSE 0 END)` across all key columns to quantify nulls. Key findings:
 - `Customer_Segment`: nulls present → imputed as `'Unknown'`
 - `Payment_Method`: nulls present → imputed as `'Unknown'`
-- `Waste_Reason`: 1,675 NULLs (expected — only 125 rows had actual waste) → imputed as `'Unspecified'` where `Waste_Quantity > 0`
+- `Waste_Reason`: nulls present (expected — only rows with actual waste have a reason) → imputed as `'Unspecified'` where `Waste_Quantity > 0`
 
 ### Step 4 — Duplicate detection and removal
 ```sql
@@ -215,6 +215,7 @@ WITH CleanedData AS (
 SELECT * INTO team_oreo_restaurant_internship_dataset_Cleaneds
 FROM CleanedData WHERE RowNumber = 1;
 ```
+**Result:** 10 duplicate rows removed — 1,810 raw rows reduced to 1,800 clean rows.
 
 ### Step 5 — Product name standardisation
 Applied `LTRIM/RTRIM` to remove leading/trailing whitespace from `Menu_Item`. Fixed the known typo:
@@ -225,6 +226,7 @@ WHERE Menu_Item = 'Margherita Pzza';
 ```
 
 ### Step 6 — Net Sales recalculation
+Recalculated `Net_Sales_GBP` to ensure consistency:
 ```sql
 UPDATE team_oreo_restaurant_internship_dataset_Cleaneds
 SET Net_Sales_GBP = ROUND(
@@ -233,7 +235,7 @@ SET Net_Sales_GBP = ROUND(
 ```
 
 ### Step 7 — Validation queries
-Ran post-cleaning checks: total revenue (`£19,988.63`), total orders, average order value (`£11.10`), best-selling products, waste percentage, and complaint rate — all confirmed against expected values.
+Ran post-cleaning checks: total revenue (`£19,988.63`), total orders, average order value (`£11.10`), best-selling products by units and revenue, waste percentage, and complaint rate — all confirmed against expected values.
 
 ---
 
@@ -264,6 +266,7 @@ After cleaning, I used **Excel pivot tables** and **SQL queries** to answer key 
 - AOV full-price orders: £11.40 | AOV discounted orders: £10.10
 - Average customer rating: **4.38★** (target: 4.5★)
 
+---
 ---
 
 ## 📊 Dashboards Overview
