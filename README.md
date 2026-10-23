@@ -64,7 +64,7 @@ These problems were backed by data — but the restaurant had no single view of 
 
 | Attribute | Detail |
 |-----------|--------|
-| **Source** | Legacy Group internal POS system |
+| **Source** | Restaurant internal POS system |
 | **Period** | 1 January 2026 – 30 June 2026 |
 | **Rows (raw)** | 1,800 transactions |
 | **Columns** | 30 |
