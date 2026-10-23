@@ -132,7 +132,7 @@ My analysis followed the same structure as the client-facing presentation: from 
 │                     PROJECT WORKFLOW                            │
 └─────────────────────────────────────────────────────────────────┘
 
-  RAW DATA (1,800 rows × 30 cols)
+  RAW DATA (1,810 rows × 24 cols)
        │
        ▼
   ┌─────────────────────────────────────┐
