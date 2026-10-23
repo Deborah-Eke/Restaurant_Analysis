@@ -17,21 +17,21 @@
 
 ## 📑 Table of Contents
 
-- [About This Project](#-about-this-project)
-- [The Client Problem](#-the-client-problem)
-- [Dataset Overview](#-dataset-overview)
-- [Data Dictionary](#-data-dictionary)
-- [Project Workflow](#-project-workflow)
-- [Tools Used](#-tools-used)
-- [Data Cleaning Process](#-data-cleaning-process)
-- [Exploratory Data Analysis](#-exploratory-data-analysis)
-- [Dashboards Overview](#-dashboards-overview)
-- [Key Insights](#-key-insights)
-- [Business Recommendations](#-business-recommendations)
-- [Expected Impact](#-expected-impact)
-- [Implementation Plan](#-implementation-plan)
-- [Project Structure](#-project-structure)
-- [About Me](#-about-me)
+- [About This Project](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-about-this-project)
+- [The Client Problem](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-the-client-problem)
+- [Dataset Overview](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-dataset-overview)
+- [Data Dictionary](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-data-dictionary)
+- [Project Workflow](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-project-workflow)
+- [Tools Used](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#%EF%B8%8F-tools-used)
+- [Data Cleaning Process](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-data-cleaning-process)
+- [Exploratory Data Analysis](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-exploratory-data-analysis)
+- [Dashboards Overview](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-dashboards-overview)
+- [Key Insights](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-key-insights)
+- [Business Recommendations](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-business-recommendations)
+- [Expected Impact](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-expected-impact)
+- [Implementation Plan](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-implementation-plan)
+- [Project Structure](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#-project-structure)
+- [About Me](https://github.com/Deborah-Eke/Restaurant_Analysis/blob/main/README.md#%E2%80%8D-about-me)
 
 ---
 
