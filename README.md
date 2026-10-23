@@ -629,7 +629,13 @@ I'm a data analyst with hands-on experience in the full analytics cycle — from
 
 *"Without data, you're just another person with an opinion."* — W. Edwards Deming
 
-[![LinkedIn](https://www.linkedin.com/in/deborah-eke-5aaa24285/)
-[![GitHub](https://github.com/Deborah-Eke)
+---
+<div align="center">
+
+### Let's Connect
+
+[![GitHub](https://img.shields.io/badge/GitHub-Deborah--Eke-181717?style=for-the-badge&logo=github)](https://github.com/Deborah-Eke)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Deborah%20Eke-0A66C2?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/deborah-eke-5aaa24285/)
+[![Email](https://img.shields.io/badge/Email-ekedeboraholuchi@gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:ekedeboraholuchi@gmail.com)
 
 </div>
