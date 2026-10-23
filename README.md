@@ -64,14 +64,14 @@ These problems were backed by data — but the restaurant had no single view of 
 
 | Attribute | Detail |
 |-----------|--------|
-| **Source** | Restaurant internal POS system |
+| **Source** | Legacy Group internal POS system |
 | **Period** | 1 January 2026 – 30 June 2026 |
-| **Rows (raw)** | 1,800 transactions |
-| **Columns** | 30 |
+| **Rows (raw)** | 1,810 transactions |
+| **Rows (after cleaning)** | 1,800 transactions (10 duplicates removed) |
+| **Columns** | 24 |
 | **Unique Customers** | 440 |
 | **Menu Items** | 16 |
 | **Order Channels** | Dine-in, Delivery, Takeaway |
-
 **Key financial figures confirmed in the cleaned dataset:**
 
 | KPI | Value |
