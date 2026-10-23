@@ -278,7 +278,7 @@ My Power BI report contains **4 analytical dashboards** and 1 supporting data no
 
 > *High-level financial and operational summary for senior management*
 
-![Dashboard 1](Dashboard1.PNG)
+![Dashboard 1](Dashboard 1.PNG)
 
 **KPIs displayed:** £19.99K Total Revenue · 1,800 Total Orders · 12.52 min Avg Processing Time · 4.38 Avg Customer Rating *(shown in red — below 4.5★ target)*
 
@@ -292,7 +292,7 @@ My Power BI report contains **4 analytical dashboards** and 1 supporting data no
 
 > *Food waste by product and trading window, and preparation time by item*
 
-![Dashboard 2](Dashboard2.PNG)
+![Dashboard 2](Dashboard 2.PNG)
 
 **KPIs displayed:** 157 Waste Quantity · 7.15% Waste Rate % · 12.52 min Avg Processing Time · £462.65 Waste Cost
 
@@ -306,7 +306,7 @@ My Power BI report contains **4 analytical dashboards** and 1 supporting data no
 
 > *Satisfaction scores, complaint distribution, loyalty programme health, and discount impact*
 
-![Dashboard 3](Dashboard3.PNG)
+![Dashboard 3](Dashboard 3.PNG)
 
 **KPIs displayed:** 4.38 Avg Rating · 2.78% Complaint Rate · 50 Total Complaints · 440 Unique Customers · 19.89% Loyalty Share %
 
@@ -320,7 +320,7 @@ My Power BI report contains **4 analytical dashboards** and 1 supporting data no
 
 > *Real-time KPI health gauges, weekly trend lines, and trading window status at a glance*
 
-![Dashboard 4](Dashboard4.PNG)
+![Dashboard 4](Dashboard 4.PNG)
 
 **KPIs displayed (gauges):** Waste % 7.15% ✅ (target 10%) · Complaint Rate 2.78% 🔴 (target 2% — **above target, gauge shown in red**) · Avg Wait Time 12.52 min ✅ (target 15) · Avg Processing Time 12.52 min ✅ (target 15)
 
