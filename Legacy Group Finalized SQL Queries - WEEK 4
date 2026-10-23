@@ -1,0 +1,977 @@
+CREATE DATABASE Team_Oreo_Restuarant;
+
+---Checking whether the raw dataset was imported---
+SELECT *
+FROM team_oreo_restaurant_internship_dataset;
+
+---Counting the raw dataset----
+SELECT COUNT(*) AS Total_Rows
+FROM team_oreo_restaurant_internship_dataset;
+
+---Inspecting the columns---
+SELECT Top 10 *
+FROM team_oreo_restaurant_internship_dataset;
+
+---Checking for the Missing Values---
+SELECT
+SUM(CASE WHEN Transaction_ID IS NULL THEN 1 ELSE 0 END) AS Missing_Transaction_ID,
+SUM(CASE WHEN Order_ID IS NULL THEN 1 ELSE 0 END) AS Missing_Order_ID,
+SUM(CASE WHEN Order_Date IS NULL THEN 1 ELSE 0 END) AS Missing_Order_Date,
+SUM(CASE WHEN Menu_Item IS NULL THEN 1 ELSE 0 END) AS Missing_Menu_Item,
+SUM(CASE WHEN Quantity IS NULL THEN 1 ELSE 0 END) AS Missing_Quantity,
+SUM(CASE WHEN Unit_Price_GBP IS NULL THEN 1 ELSE 0 END) AS Missing_Unit_Price,
+SUM(CASE WHEN Customer_Rating IS NULL THEN 1 ELSE 0 END) AS Missing_Customer_Rating,
+SUM(CASE WHEN Customer_Segment IS NULL THEN 1 ELSE 0 END) AS Missing_Customer_Segment,
+SUM(CASE WHEN PaymenT_Method IS NULL THEN 1 ELSE 0 END) AS Missing_Payment_Method,
+SUM(CASE WHEN Waste_Reason IS NULL THEN 1 ELSE 0 END) AS Missing_Waste_Reason
+FROM team_oreo_restaurant_internship_dataset;
+
+---Finding the Duplicate Transcations---
+SELECT
+Transaction_ID,
+COUNT(*) AS Number_of_Records
+FROM team_oreo_restaurant_internship_dataset
+GROUP BY Transaction_ID
+HAVING COUNT(*) > 1;
+
+---Checking for Inconsistent Product Names---
+SELECT
+Menu_Item,
+COUNT(*) AS Number_of_Records
+FROM team_oreo_restaurant_internship_dataset
+GROUP BY Menu_Item
+ORDER BY Menu_Item;
+
+---Creating the Clean Dataset---
+WITH CleanedData As
+(
+SELECT *,
+ROW_NUMBER() OVER
+(
+PARTITION BY Transaction_ID
+ORDER BY Transaction_ID
+) AS RowNumber
+FROM team_oreo_restaurant_internship_dataset
+)
+SELECT *
+INTO team_oreo_restaurant_internship_dataset_Cleaned
+FROM CleanedData
+WHERE RowNumber = 1;
+
+---Checking---
+SELECT COUNT(*) AS Cleaned_Rows
+FROM team_oreo_restaurant_internship_dataset_Cleaned;
+
+---QUERIES FOR DATA CLEANING AND TRENDS IDENTIFICATION---
+
+---Standardising the Menu Names---
+UPDATE team_oreo_restaurant_internship_dataset_Cleaned
+SET Menu_Item = LTRIM(RTRIM(Menu_Item));
+
+UPDATE team_oreo_restaurant_internship_dataset_Cleaned
+SET Menu_Item = 'Margherita Pizza'
+WHERE Menu_Item = 'Margherita Pzza';
+
+---Handling Missing Customer Segment
+UPDATE team_oreo_restaurant_internship_dataset_Cleaned
+SET Customer_Segment = 'Unknown'
+WHERE Customer_Segment IS NULL;
+
+---Handling Missing Payment Method---
+UPDATE team_oreo_restaurant_internship_dataset_Cleaned
+SET Payment_Method = 'Unkonwn'
+WHERE Payment_Method IS NULL;
+
+---Handling Missing Waste Reason---
+UPDATE team_oreo_restaurant_internship_dataset_Cleaned
+SET Waste_Reason = 'Unknown'
+WHERE Waste_Quantity > 0
+AND Waste_Reason IS NULL;
+
+UPDATE team_oreo_restaurant_internship_dataset_Cleaned
+SET Waste_Reason = 'None'
+WHERE Waste_Quantity = 0
+AND Waste_Reason IS NULL;
+
+---Recalculating the Discount Value---
+UPDATE team_oreo_restaurant_internship_dataset_Cleaned
+SET Discount_Value_GBP =
+ROUND(
+(Quantity * Unit_Price_GBP * Discount_Percent)/ 100,
+2);
+
+---Recalculating the Net Sales---
+UPDATE team_oreo_restaurant_internship_dataset_Cleaned
+SET Net_Sales_GBP =
+ROUND(
+(Quantity * Unit_Price_GBP) - Discount_Value_GBP,
+2);
+
+---Calculating the Total Revenue---
+SELECT
+ROUND(SUM(Net_Sales_GBP), 2) AS Total_Revenue_GBP
+FROM team_oreo_restaurant_internship_dataset_Cleaned;
+
+---Calculating the Number of Orders---
+SELECT
+COUNT(DISTINCT Order_ID) AS Total_Orders
+FROM team_oreo_restaurant_internship_dataset_Cleaned;
+
+---Calculating the Average Order Value---
+SELECT
+ROUND( SUM(Net_Sales_GBP) /
+COUNT(DISTINCT Order_ID), 2) AS Average_Order_Value_GBP
+FROM team_oreo_restaurant_internship_dataset_Cleaned;
+
+---Finding the Best-Selling Products---
+SELECT
+Menu_Item,
+SUM(Quantity) AS Units_Sold
+FROM team_oreo_restaurant_internship_dataset_Cleaned
+GROUP BY Menu_Item
+ORDER BY Units_Sold DESC;
+
+---Finding Worst_Selling Products---
+SELECT TOP 5
+Menu_Item,
+SUM(Quantity) AS Units_Sold
+FROM team_oreo_restaurant_internship_dataset_Cleaned
+GROUP BY Menu_Item
+ORDER BY Units_Sold ASC;
+
+---Finding Products Generating the Most Revenue---
+SELECT TOP 8
+Menu_Item,
+SUM(Quantity) AS Units_Sold,
+ROUND(SUM(Net_Sales_GBP), 2) AS Revenue_GBP
+FROM team_oreo_restaurant_internship_dataset_Cleaned
+GROUP BY Menu_Item
+ORDER BY Revenue_GBP DESC;
+
+---Analysing Sales by Day---
+SELECT
+Day_of_Week,
+COUNT(DISTINCT Order_ID) AS Number_of_Oders,
+SUM(Quantity) AS Units_Sold,
+ROUND(SUM(Net_Sales_GBP), 2) AS Revenue_GBP
+FROM team_oreo_restaurant_internship_dataset_Cleaned
+GROUP BY Day_of_Week
+ORDER BY Revenue_GBP DESC;
+
+---Weekly Revenue---
+SELECT Week_Number, SUM(Net_Sales_GBP) AS REVENUE
+FROM [Week - 4 build up] 
+GROUP BY Week_Number
+ORDER BY REVENUE DESC;
+
+SELECT Day_of_Week, SUM(Net_Sales_GBP) AS REVENUE
+FROM [Week - 4 build up] 
+GROUP BY Day_of_Week
+ORDER BY REVENUE DESC;
+
+---Analysing Revenue by Month---
+SELECT MonthYear, SUM(Net_Sales_GBP) AS REVENUE
+FROM [Week - 4 build up] 
+GROUP BY MonthYear
+ORDER BY REVENUE DESC;
+
+---Analysing Revenue by Trading Window---
+SELECT Trading_Window, SUM(Net_Sales_GBP) AS REVENUE
+FROM [Week - 4 build up] 
+GROUP BY Trading_Window
+ORDER BY REVENUE DESC;
+
+
+---Analysing Peak Trading Periods---
+SELECT
+DATEPART(HOUR, Order_Time) AS Trading_Hour,
+COUNT(DISTINCT Order_ID) AS Number_of_Orders,
+ROUND(SUM(Net_Sales_GBP), 2) AS Revenue_GBP
+FROM team_oreo_restaurant_internship_dataset_Cleaned
+GROUP BY DATEPART(HOUR, Order_Time)
+ORDER BY Revenue_GBP DESC;
+
+---Calculate Food Waste Value---
+SELECT
+SUM(Waste_Quantity) AS Total_Waste_Quantity,
+ROUND(SUM(Waste_Cost_GBP), 2) AS Total_Waste_Value_GBP
+FROM team_oreo_restaurant_internship_dataset_Cleaned;
+
+---Calculate waste Percentage---
+SELECT
+ROUND(SUM(Waste_Cost_GBP) /
+SUM(Net_Sales_GBP) * 100, 2) AS Waste_Percentage
+FROM team_oreo_restaurant_internship_dataset_Cleaned;
+
+----Identify Main Causes of Waste---
+SELECT
+Waste_Reason,
+SUM(Waste_Quantity) AS Waste_Quantity,
+ROUND(SUM(Waste_Cost_GBP), 2) AS Waste_Value_GBP
+FROM team_oreo_restaurant_internship_dataset_Cleaned
+WHERE Waste_Quantity > 0
+GROUP BY Waste_Reason 
+ORDER BY Waste_Value_GBP DESC;
+
+---Complaint rate by Order channel---
+SELECT Order_Channel, 
+SUM(CASE WHEN Complaint_Received = 'Yes' THEN 1 ELSE 0 END)  AS complaints,
+  ROUND(SUM(CASE WHEN Complaint_Received = 'Yes' THEN 1 ELSE 0 END)
+        * 100.0 / COUNT(DISTINCT Order_ID), 2)            AS complaint_rate_pct
+FROM [Week - 4 build up]
+GROUP BY Order_Channel
+ORDER BY complaint_rate_pct desc;
+
+---Complaint rate by Menu item---
+SELECT Menu_Item, 
+SUM(CASE WHEN Complaint_Received = 'Yes' THEN 1 ELSE 0 END)  AS complaints,
+  ROUND(SUM(CASE WHEN Complaint_Received = 'Yes' THEN 1 ELSE 0 END)
+        * 100.0 / COUNT(DISTINCT Order_ID), 2)            AS complaint_rate_pct
+FROM [Week - 4 build up]
+GROUP BY Menu_Item
+ORDER BY complaint_rate_pct desc;
+
+---PRODUCT AND VALUE ANALYSIS---
+
+--- 1.  Top Revenue Products 
+
+--- Calculating the Total Revenue---
+SELECT SUM(Net_Sales_GBP) AS Total_Revenue_GBP
+FROM [Week - 4 build up]
+
+---Ranking Menu item by Units sold and Revenue---
+SELECT 
+	Menu_Item, SUM(Quantity) AS Units_Sold,
+    SUM(Net_Sales_GBP) AS Revenue_GBP 
+FROM [Week - 4 build up]
+GROUP BY Menu_Item;
+
+---Products with high volume of Units sold---
+SELECT Top 7
+	Menu_Item, 
+	SUM(Quantity) AS Units_Sold
+FROM [Week - 4 build up]
+GROUP BY Menu_Item
+ORDER BY Units_Sold DESC;
+
+---Products that generates high Revenue---
+SELECT top 8
+	Menu_Item,
+    SUM(Net_Sales_GBP) AS Revenue_GBP
+FROM [Week - 4 build up]
+GROUP BY Menu_Item
+ORDER BY Revenue_GBP DESC;
+
+---Products with high volume of Units sold but generate low Revenue---
+SELECT 
+	Menu_Item, 
+    SUM(Quantity) AS Units_sold, 
+    SUM(Net_Sales_GBP) AS Revenue_GBP 
+FROM [Week - 4 build up]
+GROUP BY Menu_Item 
+HAVING SUM(Net_Sales_GBP)<1500 AND SUM(Quantity)>150;
+
+--- 2. Poor value products with regards to Food cost and its respective Waste cost---
+SELECT
+    Menu_Item,
+    ROUND(SUM(Food_Cost_GBP), 2) AS Food_Cost_GBP,
+    ROUND(SUM(Waste_Cost_GBP), 2) AS Waste_Cost_GBP,
+    ROUND(
+        (SUM(Waste_Cost_GBP) / NULLIF(SUM(Food_Cost_GBP), 0)) * 100,
+        2
+    ) AS Waste_Share_of_Food_Cost_Pct,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Revenue_GBP,
+    ROUND(SUM(Gross_Profit_GBP), 2) AS Gross_Profit_GBP,
+
+    CASE
+        WHEN
+            (SUM(Waste_Cost_GBP) /
+            NULLIF(SUM(Food_Cost_GBP), 0)) * 100 >= 10
+        THEN 'High Waste Burden'
+        ELSE 'Lower Waste Burden'
+    END AS Waste_Flag
+
+FROM [Week - 4 build up]
+GROUP BY Menu_Item
+ORDER BY Waste_Share_of_Food_Cost_Pct DESC;
+
+---3. Products to Investigate--- 
+SELECT
+    Menu_Item,
+    COUNT(*) AS Total_Transactions,
+    SUM(
+        CASE
+            WHEN Complaint_Received = 'Yes' THEN 1
+            ELSE 0
+        END
+    ) AS Complaints,
+    ROUND(
+        SUM(
+            CASE
+                WHEN Complaint_Received = 'Yes' THEN 1
+                ELSE 0
+            END
+        ) / COUNT(*) * 100,
+        2
+    ) AS Complaint_Rate_Pct,
+
+    ROUND(AVG(Customer_Rating), 2) AS Average_Rating,
+    ROUND(SUM(Waste_Cost_GBP), 2) AS Waste_Cost_GBP,
+
+    CASE
+        WHEN
+            (
+                SUM(
+                    CASE
+                        WHEN Complaint_Received = 'Yes' THEN 1
+                        ELSE 0
+                    END
+                ) / COUNT(*) * 100
+            ) >= 5
+            AND AVG(Customer_Rating) >= 4
+            AND SUM(Waste_Cost_GBP) = 0
+        THEN 'Investigate - High Complaints Despite Good Rating and No Waste'
+        WHEN
+            (
+                SUM(
+                    CASE
+                        WHEN Complaint_Received = 'Yes' THEN 1
+                        ELSE 0
+                    END
+                ) / COUNT(*) * 100
+            ) >= 5
+        THEN 'Investigate - High Complaint Rate'
+        ELSE 'Lower Complaint Concern'
+    END AS Investigation_Flag
+FROM [Week - 4 build up]
+GROUP BY Menu_Item
+ORDER BY Complaint_Rate_Pct DESC;
+
+
+---CUSTOMER PATTERNS AND SQL LEAD---
+
+---1. Order Frequency Band and Average Lifetime Spend---
+
+WITH customer_summary AS (
+    SELECT
+        Customer_ID,
+        COUNT(DISTINCT Order_ID) AS Order_Count,
+        SUM(Net_Sales_GBP) AS Lifetime_Spend
+    FROM restaurant_orders
+    GROUP BY Customer_ID
+)
+SELECT
+    CASE
+        WHEN Order_Count = 1 THEN '1 order'
+        WHEN Order_Count BETWEEN 2 AND 3 THEN '2-3 orders'
+        WHEN Order_Count BETWEEN 4 AND 6 THEN '4-6 orders'
+        WHEN Order_Count >= 7 THEN '7+ orders'
+    END AS Order_Frequency_Band,
+    COUNT(*) AS Number_of_Customers,
+    ROUND(AVG(Lifetime_Spend), 2) AS Average_Lifetime_Spend_GBP
+FROM customer_summary
+GROUP BY
+    CASE
+        WHEN Order_Count = 1 THEN '1 order'
+        WHEN Order_Count BETWEEN 2 AND 3 THEN '2-3 orders'
+        WHEN Order_Count BETWEEN 4 AND 6 THEN '4-6 orders'
+        WHEN Order_Count >= 7 THEN '7+ orders'
+    END
+ORDER BY Average_Lifetime_Spend_GBP DESC;
+
+
+---2. Customer Segment Stability Check---
+
+WITH order_level AS (
+    SELECT
+        Customer_ID,
+        Order_ID,
+        MIN(Customer_Segment) AS Order_Segment
+    FROM restaurant_orders
+    GROUP BY Customer_ID, Order_ID
+),
+
+segment_counts AS (
+    SELECT
+        Customer_ID,
+        COUNT(DISTINCT Order_Segment) AS Distinct_Segments
+    FROM order_level
+    GROUP BY Customer_ID
+)
+
+SELECT
+    CASE
+        WHEN Distinct_Segments = 1 THEN 'Stable'
+        ELSE 'Changed'
+    END AS Segment_Stability,
+    COUNT(*) AS Num_Customers
+FROM segment_counts
+GROUP BY Distinct_segment;
+
+
+---3. Items Paired Together---
+
+---I. calculation of distinct customer days---
+SELECT
+    COUNT(*) AS order_lines,
+    COUNT(DISTINCT customer_id) AS customers,
+    COUNT(DISTINCT order_date) AS dates,
+    COUNT(DISTINCT CONCAT(customer_id, '|', order_date)) AS customer_days
+FROM Restaurant_orders;
+
+---II.calculation of distinct menu items---
+SELECT
+    customer_id,
+    order_date,
+    COUNT(*) AS order_line_count,
+    COUNT(DISTINCT order_id) AS order_count,
+    COUNT(DISTINCT menu_item) AS distinct_menu_items
+FROM restaurant_orders
+GROUP BY customer_id, order_date
+HAVING COUNT(*) > 1
+ORDER BY order_date, customer_id;
+
+--III. Keep each item pair only once per customer and date---
+WITH customer_day_items AS (
+    SELECT DISTINCT
+        customer_id,
+        order_date,
+        menu_item
+    FROM restaurant_orders
+    WHERE customer_id IS NOT NULL
+      AND order_date IS NOT NULL
+      AND menu_item IS NOT NULL
+),
+
+same_day_pairs AS (
+    SELECT
+        a.customer_id,
+        a.order_date,
+        a.menu_item AS item_a,
+        b.menu_item AS item_b
+    FROM customer_day_items AS a
+    INNER JOIN customer_day_items AS b
+        ON a.customer_id = b.customer_id
+       AND a.order_date = b.order_date
+       AND a.menu_item < b.menu_item
+)
+
+SELECT
+    customer_id,
+    order_date,
+    item_a,
+    item_b
+FROM same_day_pairs
+ORDER BY order_date, customer_id, item_a, item_b;
+
+SELECT
+    item_a,
+    item_b,
+    COUNT(*) AS pair_occurrences,
+    COUNT(DISTINCT customer_id) AS distinct_customers,
+    COUNT(DISTINCT order_date) AS distinct_dates
+FROM same_day_pairs
+GROUP BY item_a, item_b
+ORDER BY pair_occurrences DESC, item_a, item_b;
+
+WITH customer_day_items AS (
+    SELECT DISTINCT
+        customer_id,
+        order_date,
+        menu_item
+    FROM orders
+    WHERE customer_id IS NOT NULL
+      AND order_date IS NOT NULL
+      AND menu_item IS NOT NULL
+),
+
+same_day_pairs AS (
+    SELECT
+        a.customer_id,
+        a.order_date,
+        a.menu_item AS item_a,
+        b.menu_item AS item_b
+    FROM customer_day_items AS a
+    INNER JOIN customer_day_items AS b
+        ON a.customer_id = b.customer_id
+       AND a.order_date = b.order_date
+       AND a.menu_item < b.menu_item
+)
+
+SELECT
+    p.customer_id,
+    p.order_date,
+    p.item_a,
+    p.item_b,
+    COUNT(DISTINCT o.order_id) AS order_count,
+    STRING_AGG(DISTINCT CAST(o.order_id AS VARCHAR), ', ')
+        AS order_ids
+FROM same_day_pairs AS p
+INNER JOIN orders AS o
+    ON o.customer_id = p.customer_id
+   AND o.order_date = p.order_date
+GROUP BY
+    p.customer_id,
+    p.order_date,
+    p.item_a,
+    p.item_b
+ORDER BY p.order_date, p.customer_id;
+
+SELECT
+    customer_id,
+    order_date,
+    menu_item,
+    COUNT(*) AS line_count,
+    SUM(quantity) AS total_quantity
+FROM restaurant_orders
+GROUP BY customer_id, order_date, menu_item
+HAVING COUNT(*) > 1
+ORDER BY order_date, customer_id;
+
+
+---DISCOUNTS, REVENUE OPPORTUNITY AND KPI SUMMARY---
+
+---1. Discounted vs Full Price Orders---
+
+SELECT
+COUNT(*) AS Order_Count,
+  CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END AS Order_Type,
+    SUM(Quantity) AS Total_Quantity,
+    ROUND(AVG(Net_Sales_GBP), 2) AS Average_Order_Value,
+    ROUND(AVG(Quantity), 2) AS Average_Quantity,
+    ROUND(AVG(Customer_Rating), 2) AS Average_Rating,
+    ROUND(SUM(Discount_Value_GBP), 2) AS Total_Discount_Cost,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Total_Net_Sales
+FROM resturant_orders
+GROUP BY
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END;
+
+---2. Performance at Different Discount Levels---
+
+SELECT
+    Discount_Percent,
+    COUNT(*) AS Order_Count,
+    SUM(Quantity) AS Total_Quantity,
+    ROUND(AVG(Quantity), 2) AS Average_Quantity,
+    ROUND(AVG(Net_Sales_GBP), 2) AS Average_Order_Value,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Total_Net_Sales,
+    ROUND(SUM(Discount_Value_GBP), 2) AS Total_Discount_Cost,
+    ROUND(AVG(Customer_Rating), 2) AS Average_Rating
+FROM restaurant_orders
+GROUP BY Discount_Percent
+ORDER BY Discount_Percent;
+
+---3. Discount Cost Compared with Sales---
+
+SELECT
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END AS Order_Type,
+    ROUND(SUM(Gross_Sales_GBP), 2) AS Gross_Sales,
+    ROUND(SUM(Discount_Value_GBP), 2) AS Discount_Cost,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Net_Sales,
+    ROUND(
+        SUM(Discount_Value_GBP) /
+        NULLIF(SUM(Gross_Sales_GBP), 0) * 100, 2
+    ) AS Discount_Percentage,
+    ROUND(SUM(Gross_Profit_GBP), 2) AS Gross_Profit
+FROM restaurant_orders
+GROUP BY
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END;
+
+---4. Discounted vs Full Price Profitability---
+
+SELECT
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END AS Order_Type,
+    COUNT(*) AS Order_Count,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Net_Sales,
+    ROUND(SUM(Food_Cost_GBP), 2) AS Food_Cost,
+    ROUND(SUM(Gross_Profit_GBP), 2) AS Gross_Profit,
+    ROUND(
+        SUM(Gross_Profit_GBP) /
+        NULLIF(SUM(Net_Sales_GBP), 0) * 100, 2
+    ) AS Gross_Profit_Margin
+FROM restaurant_orders
+GROUP BY
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END;
+
+---5. Discounted vs Full Price by Customer Segment---
+
+SELECT
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END AS Order_Type,
+    Customer_Segment,
+    COUNT(*) AS Order_Count,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Net_Sales,
+    ROUND(AVG(Customer_Rating), 2) AS Average_Rating
+FROM restaurant_orders
+GROUP BY
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END,
+    Customer_Segment
+ORDER BY
+    Order_Type,
+    Order_Count DESC;
+
+---6. Loyalty Rate for Discounted vs Full Price Orders---
+
+SELECT
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END AS Order_Type,
+    COUNT(*) AS Total_Orders,
+    SUM(
+        CASE
+            WHEN Customer_Segment = 'Loyal' THEN 1
+            ELSE 0
+        END
+    ) AS Loyal_Orders,
+    ROUND(
+        SUM(
+            CASE
+                WHEN Customer_Segment = 'Loyal' THEN 1.0
+                ELSE 0
+            END
+        ) / NULLIF(COUNT(*), 0) * 100,
+        2
+    ) AS Loyal_Customer_Rate
+FROM restaurant_orders
+GROUP BY
+    CASE
+        WHEN Discount_Percent > 0 THEN 'Discounted'
+        ELSE 'Full Price'
+    END;
+
+---7. Product Price Tiers---
+
+SELECT
+    Menu_Item,
+    Unit_Price_GBP,
+    CASE
+        WHEN Unit_Price_GBP <= 5 THEN 'Budget'
+        WHEN Unit_Price_GBP <= 10 THEN 'Mid'
+        ELSE 'Premium'
+    END AS Price_Tier
+FROM restaurant_orders
+GROUP BY
+    Menu_Item,
+    Unit_Price_GBP
+ORDER BY
+    Unit_Price_GBP;
+    select *
+    from restaurant_orders
+
+---8. Revenue and Waste by Price Tier---
+
+WITH PriceTierData AS
+(
+    SELECT
+        Order_ID,
+        Quantity,
+        Unit_Price_GBP,
+        Net_Sales_GBP,
+        Food_Cost_GBP,
+        Waste_Cost_GBP,
+        Gross_Profit_GBP,
+        CASE
+            WHEN Unit_Price_GBP <= 5 THEN 'Budget'
+            WHEN Unit_Price_GBP <= 10 THEN 'Mid'
+            ELSE 'Premium'
+        END AS Price_Tier
+    FROM restaurant_orders
+)
+
+SELECT
+    Price_Tier,
+    COUNT(DISTINCT Order_ID) AS Order_Count,
+    SUM(Quantity) AS Total_Units_Sold,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Total_Revenue,
+    ROUND(SUM(Food_Cost_GBP), 2) AS Total_Food_Cost,
+    ROUND(SUM(Waste_Cost_GBP), 2) AS Total_Waste_Cost,
+    ROUND(SUM(Gross_Profit_GBP), 2) AS Total_Gross_Profit,
+    ROUND(
+        SUM(Waste_Cost_GBP) /
+        NULLIF(SUM(Net_Sales_GBP), 0) * 100,
+        2
+    ) AS Waste_Percentage,
+    ROUND(
+        SUM(Gross_Profit_GBP) /
+        NULLIF(SUM(Net_Sales_GBP), 0) * 100,
+        2
+    ) AS Gross_Profit_Margin
+FROM PriceTierData
+GROUP BY Price_Tier
+ORDER BY
+    CASE
+        WHEN Price_Tier = 'Budget' THEN 1
+        WHEN Price_Tier = 'Mid' THEN 2
+        WHEN Price_Tier = 'Premium' THEN 3
+    END;
+
+---9. Revenue and Waste by Product---
+
+SELECT
+    Menu_Item,
+    Unit_Price_GBP,
+    CASE
+        WHEN Unit_Price_GBP <= 5 THEN 'Budget'
+        WHEN Unit_Price_GBP <= 10 THEN 'Mid'
+        ELSE 'Premium'
+    END AS Price_Tier,
+    SUM(Quantity) AS Units_Sold,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Revenue,
+    ROUND(SUM(Food_Cost_GBP), 2) AS Food_Cost,
+    ROUND(SUM(Waste_Cost_GBP), 2) AS Waste_Cost,
+    ROUND(SUM(Gross_Profit_GBP), 2) AS Gross_Profit,
+    ROUND(
+        SUM(Waste_Cost_GBP) /
+        NULLIF(SUM(Net_Sales_GBP), 0) * 100,
+        2
+    ) AS Waste_Percentage,
+    ROUND(
+        SUM(Gross_Profit_GBP) /
+        NULLIF(SUM(Net_Sales_GBP), 0) * 100,
+        2
+    ) AS Profit_Margin
+FROM restaurant_orders
+GROUP BY
+    Menu_Item,
+    Unit_Price_GBP
+ORDER BY
+    Revenue DESC;
+
+---10. Products with High Waste Compared with Revenue---
+
+SELECT
+    Menu_Item,
+    Unit_Price_GBP,
+    SUM(Quantity) AS Units_Sold,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Revenue,
+    ROUND(SUM(Waste_Cost_GBP), 2) AS Waste_Cost,
+    ROUND(
+        SUM(Waste_Cost_GBP) /
+        NULLIF(SUM(Net_Sales_GBP), 0) * 100,
+        2
+    ) AS Waste_Percentage,
+    ROUND(SUM(Gross_Profit_GBP), 2) AS Gross_Profit
+FROM restaurant_orders
+GROUP BY
+    Menu_Item,
+    Unit_Price_GBP
+HAVING
+    SUM(Waste_Cost_GBP) > 0
+ORDER BY
+    Waste_Percentage DESC;
+
+---11. High Revenue Products with High Waste---
+
+SELECT
+    Menu_Item,
+    Unit_Price_GBP,
+    SUM(Quantity) AS Units_Sold,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Revenue,
+    ROUND(SUM(Waste_Cost_GBP), 2) AS Waste_Cost,
+    ROUND(SUM(Gross_Profit_GBP), 2) AS Gross_Profit,
+    ROUND(
+        SUM(Waste_Cost_GBP) /
+        NULLIF(SUM(Net_Sales_GBP), 0) * 100,
+        2
+    ) AS Waste_Percentage
+FROM restaurant_orders
+GROUP BY
+    Menu_Item,
+    Unit_Price_GBP
+HAVING
+    SUM(Net_Sales_GBP) >
+    (
+        SELECT AVG(Product_Revenue)
+        FROM
+        (
+            SELECT
+                Menu_Item,
+                SUM(Net_Sales_GBP) AS Product_Revenue
+            FROM cleaned_team_oreo
+            GROUP BY Menu_Item
+        ) AS ProductSummary
+    )
+    AND SUM(Waste_Cost_GBP) > 0
+ORDER BY
+    Waste_Percentage DESC;
+
+---12. Revenue Share by Price Tier---
+
+WITH TierRevenue AS
+(
+    SELECT
+        CASE
+            WHEN Unit_Price_GBP <= 5 THEN 'Budget'
+            WHEN Unit_Price_GBP <= 10 THEN 'Mid'
+            ELSE 'Premium'
+        END AS Price_Tier,
+        SUM(Net_Sales_GBP) AS Revenue
+    FROM restaurant_orders
+    GROUP BY
+        CASE
+            WHEN Unit_Price_GBP <= 5 THEN 'Budget'
+            WHEN Unit_Price_GBP <= 10 THEN 'Mid'
+            ELSE 'Premium'
+        END
+)
+
+SELECT
+    Price_Tier,
+    ROUND(Revenue, 2) AS Revenue,
+    ROUND(
+        Revenue /
+        NULLIF((SELECT SUM(Revenue) FROM TierRevenue), 0) * 100,
+        2
+    ) AS Revenue_Share_Percentage
+FROM TierRevenue
+ORDER BY
+    Revenue DESC;
+
+---13. Waste Share by Price Tier---
+
+WITH TierWaste AS
+
+    SELECT
+        CASE
+            WHEN Unit_Price_GBP <= 5 THEN 'Budget'
+            WHEN Unit_Price_GBP <= 10 THEN 'Mid'
+            ELSE 'Premium'
+        END AS Price_Tier,
+        SUM(Waste_Cost_GBP) AS Waste_Cost
+    FROM restaurant_orders
+    GROUP BY
+        CASE
+            WHEN Unit_Price_GBP <= 5 THEN 'Budget'
+            WHEN Unit_Price_GBP <= 10 THEN 'Mid'
+            ELSE 'Premium'
+        END
+)
+
+SELECT
+    Price_Tier,
+    ROUND(Waste_Cost, 2) AS Waste_Cost,
+    ROUND(
+        Waste_Cost /
+        NULLIF((SELECT SUM(Waste_Cost) FROM TierWaste), 0) * 100,
+        2
+    ) AS Waste_Share_Percentage
+FROM TierWaste
+ORDER BY
+    Waste_Cost DESC;
+
+---14. Revenue vs Waste Opportunity---
+
+SELECT
+    Menu_Item,
+    Unit_Price_GBP,
+    CASE
+        WHEN Unit_Price_GBP <= 5 THEN 'Budget'
+        WHEN Unit_Price_GBP <= 10 THEN 'Mid'
+        ELSE 'Premium'
+    END AS Price_Tier,
+    SUM(Quantity) AS Units_Sold,
+    ROUND(SUM(Net_Sales_GBP), 2) AS Revenue,
+    ROUND(SUM(Waste_Cost_GBP), 2) AS Waste_Cost,
+    ROUND(SUM(Gross_Profit_GBP), 2) AS Gross_Profit,
+    ROUND(
+        SUM(Waste_Cost_GBP) /
+        NULLIF(SUM(Net_Sales_GBP), 0) * 100,
+        2
+    ) AS Waste_Percentage
+FROM restaurant_orders
+GROUP BY
+    Menu_Item,
+    Unit_Price_GBP
+ORDER BY
+    Waste_Percentage DESC;
+
+
+----KPI Summary----
+SELECT
+  /* Period */
+  MIN(Order_Date)                                         AS period_start,
+  MAX(Order_Date)                                         AS period_end,
+
+  /* Sales */
+  ROUND(SUM(Net_Sales_GBP), 2)                            AS net_sales,
+  ROUND(SUM(Gross_Sales_GBP), 2)                          AS gross_sales,
+  COUNT(DISTINCT Order_ID)                                AS orders,
+  ROUND(SUM(Net_Sales_GBP) * 1.0
+        / COUNT(DISTINCT Order_ID), 2)                    AS aov,
+  SUM(Quantity)                                           AS items_sold,
+
+  /* Profit */
+  ROUND(SUM(Food_Cost_GBP), 2)                            AS food_cost,
+  ROUND(SUM(Gross_Profit_GBP), 2)                         AS gross_profit,
+  ROUND(SUM(Gross_Profit_GBP) * 100.0
+        / SUM(Net_Sales_GBP), 1)                          AS gross_margin_pct,
+
+  /* Discounts */
+  ROUND(SUM(Discount_Value_GBP), 2)                       AS discount_cost,
+  ROUND(SUM(Discount_Value_GBP) * 100.0
+        / SUM(Gross_Sales_GBP), 1)                        AS discount_pct_of_gross,
+  ROUND(SUM(CASE WHEN Discount_Value_GBP > 0 THEN 1 ELSE 0 END)
+        * 100.0 / COUNT(DISTINCT Order_ID), 1)            AS orders_with_discount_pct,
+  ROUND(AVG(CASE WHEN Discount_Percent > 0
+                 THEN Discount_Percent END), 1)           AS avg_discount_when_applied_pct,
+
+  /* Waste */
+  ROUND(SUM(Waste_Cost_GBP), 2)                           AS waste_cost,
+  ROUND(SUM(Waste_Cost_GBP) * 100.0
+        / SUM(Net_Sales_GBP), 1)                          AS waste_pct_of_net_sales,
+  ROUND(SUM(Waste_Cost_GBP) * 100.0
+        / SUM(Food_Cost_GBP), 1)                          AS waste_pct_of_food_cost,
+  SUM(Waste_Quantity)                                     AS units_wasted,
+  ROUND(SUM(CASE WHEN Waste_Cost_GBP > 0 THEN 1 ELSE 0 END)
+        * 100.0 / COUNT(DISTINCT Order_ID), 1)            AS orders_with_waste_pct,
+
+  /* Customer experience */
+  SUM(CASE WHEN Complaint_Received = 'Yes' THEN 1 ELSE 0 END)  AS complaints,
+  ROUND(SUM(CASE WHEN Complaint_Received = 'Yes' THEN 1 ELSE 0 END)
+        * 100.0 / COUNT(DISTINCT Order_ID), 1)            AS complaint_rate_pct,
+  ROUND(AVG(Customer_Rating), 2)                          AS avg_rating,
+  ROUND(AVG(Preparation_Time_Min), 1)                     AS avg_prep_time_min
+FROM restaurant_orders;
+
+SELECT
+  Order_Channel                                           AS channel,
+  ROUND(SUM(Net_Sales_GBP), 2)                            AS net_sales,
+  COUNT(DISTINCT Order_ID)                                AS orders,
+  ROUND(SUM(Net_Sales_GBP) * 1.0
+        / COUNT(DISTINCT Order_ID), 2)                    AS aov,
+  ROUND(SUM(CASE WHEN Complaint_Received = 'Yes' THEN 1 ELSE 0 END)
+        * 100.0 / COUNT(DISTINCT Order_ID), 1)            AS complaint_rate_pct,
+  ROUND(SUM(Waste_Cost_GBP), 2)                           AS waste_cost
+FROM restaurant_orders
+GROUP BY Order_Channel
+ORDER BY net_sales DESC;
+
+
+
+
+
+
