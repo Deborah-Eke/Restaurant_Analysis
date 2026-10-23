@@ -39,11 +39,10 @@
 
 This project is a full-cycle restaurant performance analysis covering **1,800 transactions** across a 6-month period (January to June 2026). Working as a Data Analyst Intern with Team Oreo, I used **SQL Server**, **Microsoft Excel**, and **Power BI** to clean, explore, and visualise the data, ultimately producing 4 interactive dashboards and a set of data-driven recommendations to improve profitability, reduce waste, and improve customer satisfaction.
 
-> **My role:** End-to-end data analyst — from raw data ingestion and cleaning in SQL Server, through pivot-table EDA in Excel, to a fully published 5-page Power BI report with DAX-calculated KPIs.
+> **My role:** End-to-end data analyst — from raw data ingestion and cleaning in SQL Server, through pivot-table EDA in Excel, to a fully published 4-page Power BI report with DAX-calculated KPIs.
 
-**Project Title:** *Turning Data Into Delicious Decisions*  
-**Intern ID:** TO/DA/IN/002  
-**Organisation:** Legacy Group (Team Oreo)
+**Project Title:** *Turning Data Into Delicious Decisions*    
+**Organisation:** Team Oreo
 
 ---
 
